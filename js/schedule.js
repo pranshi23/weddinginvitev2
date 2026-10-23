@@ -62,7 +62,7 @@
   window.openDirections = function (venueKey) {
     let query = '';
     if (venueKey === 'haldi') {
-      query = encodeURIComponent("Govindnagar, Moradabad, Uttar Pradesh");
+      query = encodeURIComponent("Govind Nagar, Moradabad, Uttar Pradesh");
     } else if (venueKey === 'wedding') {
       query = encodeURIComponent("HB Klyde Premier, Near Aryabhatta International School, Zero Point, Rampur Road, Moradabad, Uttar Pradesh 244001");
     }
