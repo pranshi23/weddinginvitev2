@@ -996,8 +996,9 @@ footer {
 /* Footer Compliments Box */
 .compliments-box {
   margin: 16px auto 6px;
-  max-width: 380px;
-  padding: 14px 18px;
+  max-width: 440px;
+  width: 100%;
+  padding: 14px 16px;
   background: rgba(255, 255, 255, 0.75);
   border: 1px solid var(--color-border-gold);
   border-radius: var(--radius-md);
@@ -1008,34 +1009,40 @@ footer {
 }
 
 .compliments-title {
-  font-family: var(--font-serif);
-  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-gold-dark);
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
+.compliments-title strong {
+  font-weight: 700;
+}
+
 .compliments-title::before,
 .compliments-title::after {
   content: '';
-  height: 1px;
+  height: 1.5px;
   width: 24px;
   background: linear-gradient(to right, transparent, var(--color-gold), transparent);
 }
 
 .compliments-names {
   font-family: var(--font-serif);
-  font-size: 1.14rem;
+  font-size: clamp(0.96rem, 4.2vw, 1.2rem);
   font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  color: #1a2a1e;
+  margin-bottom: 5px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.25px currentColor;
 }
 
 .compliments-names strong {

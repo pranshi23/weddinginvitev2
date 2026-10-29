@@ -60,10 +60,12 @@
 
   // Google Maps Deep Links
   window.openDirections = function (venueKey) {
-    let query = '';
     if (venueKey === 'haldi') {
-      query = encodeURIComponent("Lane no - 4, Govind Nagar, Moradabad, Uttar Pradesh");
-    } else if (venueKey === 'wedding') {
+      window.open('https://maps.app.goo.gl/AEHZLPizdz96wyH59?g_st=ic', '_blank');
+      return;
+    }
+    let query = '';
+    if (venueKey === 'wedding') {
       query = encodeURIComponent("HB Klyde Premier, Near Aryabhatta International School, Zero Point, Rampur Road, Moradabad, Uttar Pradesh 244001");
     }
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
