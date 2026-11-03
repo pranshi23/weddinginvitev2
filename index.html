@@ -479,10 +479,15 @@
             <input type="text" id="guest-name" class="input-field" placeholder="Your Name" required />
             <textarea id="guest-message" class="textarea-field"
               placeholder="Share your heartfelt blessing or warm message for the couple..." required></textarea>
-            <button type="submit" class="btn-shower">
+            <button type="submit" class="btn-shower" id="btn-shower-submit">
               <span>🌸 Shower Blessings on Pranshi & Akash</span>
             </button>
           </form>
+
+          <!-- Blessing Submission Confirmation Notice -->
+          <div class="blessing-success-banner" id="blessing-success-banner" style="display: none;" role="status">
+            <h4 class="success-banner-title">🌸 Thank you for your blessings!</h4>
+          </div>
 
           <!-- Wishes Stream -->
           <div class="wishes-stream" id="wishes-stream">
@@ -554,7 +559,7 @@
   <script src="./js/countdown.js?v=2.3"></script>
   <script src="./js/schedule.js?v=2.7"></script>
   <script src="./js/celebrate.js?v=2.0"></script>
-  <script src="./js/guestbook.js?v=2.5"></script>
+  <script src="./js/guestbook.js?v=3.2"></script>
 
 </body>
 

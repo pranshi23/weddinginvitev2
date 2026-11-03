@@ -1,6 +1,13 @@
 /**
  * Pranshi & Akash Wedding (#APforever)
- * Live Google Sheets Guestbook Integration with LocalStorage Fallback
+ * Live Google Sheets Guestbook with Moderation Workflow
+ * 
+ * Flow:
+ * 1. Guest writes blessing & submits.
+ * 2. Blessing is saved to Google Sheet with Approved = false (hidden from website).
+ * 3. Couple receives instant email notification with a 1-click link to Google Sheet.
+ * 4. Couple ticks the "Approved" checkbox in Google Sheets.
+ * 5. Ticked blessings appear on the website; unticked ones stay hidden.
  */
 
 (function () {
@@ -8,10 +15,11 @@
   const nameInput = document.getElementById('guest-name');
   const messageInput = document.getElementById('guest-message');
   const wishesStream = document.getElementById('wishes-stream');
+  const successBanner = document.getElementById('blessing-success-banner');
+  let hideBannerTimer = null;
 
   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyl_rw3ZBiOi4Ef860vagzPjrpvvLZPjZJNLHK_Gs6VSqdwSCjT_98acq4LJOBpHUu_aw/exec';
-  const STORAGE_WISHES_KEY = 'ap_wedding_wishes_v3';
-  const STORAGE_LIKES_KEY = 'ap_wedding_user_likes_v3';
+  const STORAGE_WISHES_KEY = 'ap_wedding_wishes_v5';
 
   function getLocalWishes() {
     try {
@@ -28,25 +36,9 @@
     } catch (e) {}
   }
 
-  function getUserLikes() {
-    try {
-      const stored = localStorage.getItem(STORAGE_LIKES_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveUserLikes(likes) {
-    try {
-      localStorage.setItem(STORAGE_LIKES_KEY, JSON.stringify(likes));
-    } catch (e) {}
-  }
-
-  // Render wishes in the UI
+  // Render approved wishes in the UI
   function renderWishes(wishes) {
     if (!wishesStream) return;
-    const userLikes = getUserLikes();
     wishesStream.innerHTML = '';
 
     if (!wishes || wishes.length === 0) {
@@ -61,7 +53,6 @@
     }
 
     wishes.forEach((w) => {
-      const isLiked = userLikes.includes(w.id);
       const card = document.createElement('div');
       card.className = 'wish-item';
       card.innerHTML = `
@@ -70,75 +61,19 @@
           <span class="wish-time">${w.time || 'Recently'}</span>
         </div>
         <p class="wish-text">${escapeHtml(w.text)}</p>
-        <button class="wish-heart-btn ${isLiked ? 'liked' : ''}" data-id="${w.id}">
-          <span class="heart-icon">${isLiked ? '❤️' : '🤍'}</span>
-          <span class="like-count">${w.likes || 0}</span>
-          <span class="like-text">${isLiked ? 'Liked' : 'Like'}</span>
-        </button>
       `;
-
-      const heartBtn = card.querySelector('.wish-heart-btn');
-      heartBtn.addEventListener('click', () => {
-        toggleLike(w, heartBtn, wishes);
-      });
 
       wishesStream.appendChild(card);
     });
   }
 
-  // Toggle Like / Unlike
-  function toggleLike(wish, heartBtn, allWishes) {
-    let userLikes = getUserLikes();
-    const wishId = wish.id;
-
-    if (userLikes.includes(wishId)) {
-      // UNLIKE
-      userLikes = userLikes.filter((id) => id !== wishId);
-      wish.likes = Math.max(0, (wish.likes || 1) - 1);
-      heartBtn.classList.remove('liked');
-      heartBtn.querySelector('.heart-icon').textContent = '🤍';
-      heartBtn.querySelector('.like-text').textContent = 'Like';
-    } else {
-      // LIKE
-      userLikes.push(wishId);
-      wish.likes = (wish.likes || 0) + 1;
-      heartBtn.classList.add('liked');
-      heartBtn.querySelector('.heart-icon').textContent = '❤️';
-      heartBtn.querySelector('.like-text').textContent = 'Liked';
-
-      if (window.showerBlessingsPetals) {
-        window.showerBlessingsPetals();
-      }
-    }
-
-    heartBtn.querySelector('.like-count').textContent = wish.likes;
-    saveLocalWishes(allWishes);
-    saveUserLikes(userLikes);
-
-    // Sync Like to Google Sheets in background
-    if (wish.row) {
-      try {
-        fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'like',
-            row: wish.row,
-            likes: wish.likes
-          })
-        }).catch(() => {});
-      } catch (e) {}
-    }
-  }
-
-  // Load Wishes from Google Sheets (with local fallback)
+  // Load ONLY Approved Wishes from Google Sheets (with local fallback)
   function fetchWishesFromGoogleSheet() {
-    // Show local cached wishes immediately for instant mobile loading
+    // Show cached approved wishes immediately for instant loading
     const local = getLocalWishes();
     renderWishes(local);
 
-    // Fetch fresh live wishes from Google Sheets
+    // Fetch live approved wishes from Google Sheets
     fetch(GOOGLE_SCRIPT_URL)
       .then((res) => res.json())
       .then((remoteWishes) => {
@@ -149,7 +84,6 @@
       })
       .catch((err) => {
         console.log('Google Sheets sync notice:', err);
-        // Remains seamlessly functional with local storage
       });
   }
 
@@ -162,43 +96,71 @@
 
       if (!name || !text) return;
 
-      const newWish = {
-        id: Date.now(),
-        name: name,
-        text: text,
-        time: "Just now",
-        likes: 0
-      };
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>🌸 Submitting your blessing...</span>';
+      }
 
-      // 1. Optimistic immediate UI update
-      const currentWishes = getLocalWishes();
-      currentWishes.unshift(newWish);
-      saveLocalWishes(currentWishes);
-      renderWishes(currentWishes);
-
-      // 2. Trigger celebratory petal shower
+      // 1. Festive petal shower for instant celebratory delight
       if (window.showerBlessingsPetals) {
         window.showerBlessingsPetals();
       }
 
+      // 2. Clear inputs immediately
       nameInput.value = '';
       messageInput.value = '';
 
-      // 3. Post to Google Sheets
+      // 3. Post to Google Sheets (Saved with Approved = false)
       fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          action: 'submit',
           name: name,
           text: text
         })
-      }).then(() => {
-        // Refresh sheet data after 2 seconds
-        setTimeout(fetchWishesFromGoogleSheet, 2000);
-      }).catch((err) => {
-        console.warn('Google Sheets write notice:', err);
+      })
+      .then(() => {
+        showModerationNotice();
+      })
+      .catch((err) => {
+        console.warn('Google Sheets submission notice:', err);
+        showModerationNotice();
+      })
+      .finally(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+        }
       });
+    });
+  }
+
+  function showModerationNotice() {
+    if (successBanner) {
+      successBanner.style.display = 'block';
+      successBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Automatically auto-dismiss after 6 seconds
+      if (hideBannerTimer) clearTimeout(hideBannerTimer);
+      hideBannerTimer = setTimeout(() => {
+        if (successBanner) successBanner.style.display = 'none';
+      }, 6000);
+    }
+  }
+
+  // Hide notice when guest begins typing again
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      if (successBanner) successBanner.style.display = 'none';
+    });
+  }
+  if (messageInput) {
+    messageInput.addEventListener('input', () => {
+      if (successBanner) successBanner.style.display = 'none';
     });
   }
 
@@ -210,4 +172,7 @@
 
   // Initial load
   fetchWishesFromGoogleSheet();
+
+  // Periodically check for newly approved wishes every 60 seconds
+  setInterval(fetchWishesFromGoogleSheet, 60000);
 })();

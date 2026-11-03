@@ -19,10 +19,13 @@ A bespoke, lightweight, mobile-first, interactive wedding invitation website cra
 * **Interactive Event Itinerary Tabs (No Sangeet):**
   * **Day 1:** Haldi & Mehendi Ceremony (Wednesday, 18 Nov 2026 at Pranshi's Residence, Lane no - 4, Govind Nagar, Moradabad, Uttar Pradesh) with festive attire palette swatches and Google Maps navigation.
   * **Day 2:** The Wedding (Friday, 20 Nov 2026 at HB Klyde Premier, Near Aryabhatta International School, Zero Point, Rampur Road, Moradabad, Uttar Pradesh 244001) with Google Maps navigation.
-* **Digital "Shower Blessings" Guestbook:**
+* **Digital "Shower Blessings" Guestbook (With 1-Click Moderation & Email Alerts):**
   * Friends and family can write heartfelt messages.
-  * Tapping **"Shower Blessings"** bursts an explosion of golden petals and celebratory confetti across the mobile screen!
-  * Real-time wish cards with tap-to-like heart counters preserved in browser `localStorage`.
+  * Tapping **"Shower Blessings"** bursts an explosion of golden petals and celebratory confetti across the screen!
+  * **Moderation Workflow:** Blessings are initially hidden and saved to Google Sheets with an unchecked checkbox.
+  * **Email Notifications:** The couple receives an instant email alert when a blessing is received with a 1-click button to open the sheet.
+  * **1-Click Approval:** Ticking the checkbox in Google Sheets instantly publishes the blessing to the website! Unticked ones remain completely private.
+  * Real-time wish cards dynamically loaded from Google Sheets. (See [Google Sheets Backend Guide](./google-sheets-backend/README.md))
 * **Atmospheric Polish:**
   * Real-time drifting rose petals and eucalyptus leaves canvas animation.
   * Floating frosted-glass audio pill (`♫ Flute`) with acoustic ambient Indian classical flute melody.
