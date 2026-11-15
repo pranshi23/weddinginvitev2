@@ -598,6 +598,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
@@ -609,6 +610,7 @@ body {
   font-weight: 600;
   color: var(--color-text-muted);
   transition: color 0.3s ease, font-weight 0.3s ease;
+  white-space: nowrap;
 }
 
 .tab-btn-badge {
@@ -622,6 +624,45 @@ body {
   border-radius: 99px;
   transition: all 0.3s ease;
   line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Multi-Day Timeline Grouping inside Combined Tab */
+.timeline-day-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fbf8f2;
+  border: 1px solid rgba(194, 157, 89, 0.35);
+  border-radius: 10px;
+  padding: 6px 12px;
+  margin-top: 18px;
+  margin-bottom: 12px;
+}
+
+.timeline-day-heading:first-of-type {
+  margin-top: 4px;
+}
+
+.timeline-day-badge {
+  background: var(--color-gold);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.timeline-day-date {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #202b23;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .tab-pill-btn.active .tab-btn-title {
